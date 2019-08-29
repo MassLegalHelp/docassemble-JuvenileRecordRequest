@@ -1,0 +1,148 @@
+---
+metadata:
+  title: |
+    Asking for your Court Activity Record Information (CARI)
+  short title: |
+    CARI Request
+  description: |
+    An interview to help youth get a copy of their juvenile court records
+  authors: |
+    - name: Caroline Robinson
+      organization: MassLegalHelp
+  revision_date: 2019-05-19
+---
+objects:
+  - user: Individual
+  - mother: Individual
+  - father: Individual
+---
+mandatory: True
+code: |
+  user.name.first
+  if maiden:
+    user.name.maiden
+    or_maiden_txt = ' or ' + user.name.maiden + ' '
+  else:
+    user.name.maiden = 'None'
+    or_maiden_txt = ''
+  if alias:
+    aliases
+  else:
+    aliases = 'None'
+    user.address.address
+  user.birthdate
+  user_birthplace = user.birthcity + ', ' + user.birthstate
+  user.ssn
+  mother.name.first
+  father.name.first
+---
+question: |
+  Your name
+subquestion: |
+  What is your name? 
+fields:
+  - First: user.name.first
+  - Middle: user.name.middle
+    required: False
+  - Last: user.name.last
+---
+question: |
+  Aliases or maiden name?
+subquestion: |
+  Have you ever used another name?  
+fields:
+  - I have a maiden name: maiden
+    datatype: yesnowide
+  - I have used other names also: alias
+    datatype: yesnowide
+---
+question: |
+  What is your maiden name?
+fields:
+  - Maiden name: user.name.maiden
+---
+question: |
+  What other names have you used?
+subquestion: |
+  List any other names you have used. You do not need to repeat ${user.name}${or_maiden_txt} again. 
+fields:
+  - Other names: aliases
+---
+question: |
+  What is your address?
+fields: 
+  - street address: user.address.address
+    address autocomplete: True
+  - city: user.address.city
+  - state: user.address.state
+    code: |
+      states_list()
+  - ZIP code: user.address.zip
+---
+question: |
+  What is your birthdate?
+fields:
+  - no label: user.birthdate
+---
+question: |
+  Where were you born?
+fields:
+  - city: user.birthcity
+  - state: user.birthstate
+    code: |
+      states_list()
+---
+question: |
+  What is your Social Security Number?
+fields:
+  - no label: user.ssn
+---
+question: |
+  What is your mother's name?
+fields:
+  - Your mother's first name: mother.name.first
+  - Your mother's last name: mother.name.last
+  - Your mother's maiden name: mother.name.maiden
+    required: false
+---
+question: |
+  What is your father's name?
+fields:
+  - Your father's first name: father.name.first
+  - Your father's last name: father.name.last
+---
+question: |
+  Sign here
+signature: signature
+---
+question: |
+  What date will you be sending this form to DCJIS?
+fields:
+  no label: signature.date
+  datatype: date
+  default: ${format_date(today(), 'yyyy-MM-dd')}
+---  
+mandatory: True
+question: Here is your document.
+event: some_event
+attachment:
+  - name: Juvenile Criminal Activity Request
+    filename: juvenile_cari_request
+    pdf template file: juvenile-record-request.pdf
+    field code:
+     - UserName: user
+     - Aliases: aliases + ' / ' + user.name.maiden
+     - UserAddress: user.address.address
+     - UserCity: user.address.city
+     - UserState:  user.address.state
+     - UserZip: user.address.zip
+     - UserBirthdate: user.birthdate
+     - UserBirthplace: user.birthcity + ', ' + user.birthstate
+     - UserSsn: user.ssn
+     - Mother: mother.name.first + ', ' + mother.name.maiden + ', ' + mother.name.last
+     - Father: father
+     - Signature: signature
+     - SignDate: signature.date
+---
+  
+  
