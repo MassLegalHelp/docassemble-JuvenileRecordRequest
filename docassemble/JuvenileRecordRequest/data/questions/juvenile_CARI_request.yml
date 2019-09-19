@@ -5,11 +5,11 @@ metadata:
   short title: |
     CARI Request
   description: |
-    An interview to help youth get a copy of their juvenile court records
+    An interview to help you get a copy of your juvenile court records
   authors: |
     - name: Caroline Robinson
       organization: MassLegalHelp
-  revision_date: 2019-05-19
+  revision_date: 2019-09-19
 ---
 objects:
   - user: Individual
@@ -35,6 +35,12 @@ code: |
   user.ssn
   mother.name.first
   father.name.first
+  photo_id
+  if defined('photo_id'):
+    final_download = pdf_concatenate([request_form, photo_page])
+  else:
+    final_download = request_form
+  download_screen
 ---
 question: |
   Your name
@@ -83,6 +89,7 @@ question: |
   What is your birthdate?
 fields:
   - no label: user.birthdate
+    datatype: date
 ---
 question: |
   Where were you born?
@@ -122,12 +129,30 @@ fields:
   datatype: date
   default: ${format_date(today(), 'yyyy-MM-dd')}
 ---  
-mandatory: True
-question: Here is your document.
-event: some_event
+question: | 
+    Upload a picture of your Photo ID
+subquestion: |
+    Use your camera to take a picture of your photo ID.
+    
+    You can use a license, state ID, school ID, even a bus or T pass. Pretty much any kind of photo id that shows you are who you say you are.
+fields:
+    - Take a picture of your ID: photo_id
+      datatype: camera
+      maximum image size: 350
+      required: false
+note: |
+    If you would rather not do this now, you can make a copy your photo ID later and send it along with the printed form when we are finished. 
+---
+attachment:
+    variable name: photo_page
+    content: |
+        # Photo is below
+        ${photo_id}
+---
 attachment:
   - name: Juvenile Criminal Activity Request
     filename: juvenile_cari_request
+    variable name: request_form
     pdf template file: juvenile-record-request.pdf
     field code:
      - UserName: user
@@ -144,5 +169,12 @@ attachment:
      - Signature: signature
      - SignDate: signature.date
 ---
+event: download_screen
+question: |
+  Your forms 
   
+  ${ final_download}
+
+
+
   
