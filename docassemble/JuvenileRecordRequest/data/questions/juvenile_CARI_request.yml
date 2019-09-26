@@ -9,7 +9,7 @@ metadata:
   authors: |
     - name: Caroline Robinson
       organization: MassLegalHelp
-  revision_date: 2019-09-19
+  revision_date: 2019-09-26
 ---
 objects:
   - user: Individual
@@ -36,11 +36,11 @@ code: |
   mother.name.first
   father.name.first
   photo_id
-  if defined('photo_id'):
+  if photo_id:
     final_download = pdf_concatenate([request_form, photo_page])
   else:
     final_download = request_form
-  download_screen
+
 ---
 question: |
   Your name
@@ -169,12 +169,12 @@ attachment:
      - Signature: signature
      - SignDate: signature.date
 ---
-event: download_screen
-question: |
-  Your forms 
-  
-  ${ final_download}
-
-
-
-  
+mandatory: True
+question: Your document is ready.
+attachment:
+  - name: Juvenile records request
+    filename: final_download
+    description: |
+      Your forms and instructions and page with photo if  uploaded one.
+    content: |
+      ${final_download}
